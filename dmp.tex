@@ -1,0 +1,292 @@
+% arara: pdflatex: { synctex: yes }
+% arara: makeindex: { style: ctuthesis }
+% arara: bibtex
+
+\documentclass[oneside]{ctuthesis}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%  ČÁST 1: ZÁKLADNÍ ÚDAJE O PRÁCI
+%%  Tady se vyplňují údaje, které se objeví na titulní straně.
+%%  Pozor: uvnitř \ctusetup{...} nesmí být prázdné řádky, proto jsou
+%%  jednotlivé údaje oddělené jen komentáři.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\ctusetup{
+	preprint = \ctuverlog,
+	mainlanguage = czech,	% pro angličtinu zvolte "english"
+	doctype = M,
+	specialization = S,		% {S, E, IT}
+	%
+	% Sem vlož název práce česky a anglicky
+	title-czech = {Chytrá meteostanice s vnitřním a venkovním modulem},
+	title-english = {Smart weather station with indoor and outdoor module},
+	%
+	% Sem vlož své jméno a jméno vedoucího práce
+	author = {Martin Pinkas},
+	supervisor = {Bc. Pavel Bórik},
+	%
+	% Sem vlož klíčová slova v češtině a v angličtině
+	keywords-czech = {meteostanice, ESP32, ESP-NOW, srážkoměr, senzory, měření},
+	keywords-english = {weather station, ESP32, ESP-NOW, rain gauge, sensors, measurement},
+	%
+	% Sem vlož datum
+	day = 15,
+	month = 10,
+	year = 2026/2027,
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%  NASTAVENÍ ŠABLONY A BALÍČKY (neupravovat)
+%%  Pořadí řádků v této části je důležité.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage[table,xcdraw, dvipsnames]{xcolor}
+\usepackage{tabularray}
+\usepackage{subcaption}
+\usepackage{caption}
+\usepackage{graphicx}
+\graphicspath{{obrázky/}{./}}   % obrázky a logo se hledají ve složce obrázky (a v kořeni projektu)
+\usepackage{chngcntr}
+\usepackage{wrapfig}
+
+\usepackage{url}
+\usepackage{csquotes}
+
+\ctuprocess
+\hypersetup{hidelinks}
+\usepackage{xurl}
+
+\usepackage{tabularx, array, booktabs}
+
+\addto\ctucaptionsczech{%
+	\def\supervisorname{Vedoucí}%
+	\def\subfieldofstudyname{Studijní program}%
+}
+
+\ctutemplateset{maketitle twocolumn default}{
+	\begin{twocolumnfrontmatterpage}
+		\ctutemplate{twocolumn.thanks}
+		\ctutemplate{twocolumn.declaration}
+		\ctutemplate{twocolumn.abstract.in.titlelanguage}
+		\ctutemplate{twocolumn.abstract.in.secondlanguage}
+		\ctutemplate{twocolumn.tableofcontents}
+		\ctutemplate{twocolumn.listoffigures}
+	\end{twocolumnfrontmatterpage}
+}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[chapter]
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{conjecture}[theorem]{Conjecture}
+
+\theoremstyle{note}
+\newtheorem*{remark*}{Remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\setlength{\parskip}{0pt}
+\setlength{\parindent}{1.25cm}
+
+% ---------------------------------------------------------------
+% Nadpisy: černý text a spojená modrá linka u nadpisů pod sebou
+% ---------------------------------------------------------------
+\def\ctubarup{1.0em}                        % linka nad účařím textu nadpisu (zvětšit = vyšší linka nahoru)
+\def\ctubardown{0.55em}                     % linka pod účařím textu nadpisu (zvětšit = delší linka dolů)
+
+\makeatletter
+\colorlet{ctubluetext}{black}               % černé nadpisy
+
+\newif\ifctu@isadj                          % nadpis následuje hned po jiném nadpisu
+\newskip\ctu@after
+\newdimen\ctu@up
+\newdimen\ctu@dn
+\newdimen\ctu@tnow
+\newdimen\ctu@tprev
+\newdimen\ctu@dprev
+\newdimen\ctu@gap
+\newdimen\ctu@ovl
+\newdimen\ctu@ovlup
+\ctu@ovl=1pt                                % přesah spojovací linky dovnitř spodního nadpisu
+\ctu@ovlup=3pt                              % přesah spojovací linky nahoru do horního nadpisu (kryje případnou škvíru)
+
+% zjistí, jestli nadpis následuje hned po nadpisu, a zruší mezeru mezi nimi
+\def\ctu@pre{%
+	\if@nobreak\ctu@isadjtrue\else\ctu@isadjfalse\fi
+	\ifctu@isadj
+		\nobreak                              % mezi dvěma nadpisy nesmí být konec strany
+		\vskip-\ctu@after
+		\prevdepth=-\maxdimen
+	\fi
+}
+
+% #1 písmo nadpisu, #2 obsah nadpisu
+\long\def\ctu@hbar#1#2{%
+	\setbox\ctu@title@box\vtop{%
+		\hsize\dimexpr\linewidth-\ctu@title@rulewidth-\ctu@title@rulesep\relax
+		\linespread{1}\selectfont              % řádkování 1,5 se u nadpisů nepoužije
+		\sffamily\bfseries\raggedright
+		#1\relax
+		\global\ctu@up=\ctubarup\relax
+		\global\ctu@dn=\ctubardown\relax
+		\noindent\strut #2\strut\par
+	}%
+	% víceřádkový nadpis: linka musí sahat i pod poslední řádek
+	\ifdim\dimexpr\dp\ctu@title@box+0.15\ctu@up\relax>\ctu@dn
+		\ctu@dn=\dimexpr\dp\ctu@title@box+0.15\ctu@up\relax
+	\fi
+	\ifctu@isadj\nobreak\fi                  % ani těsně před druhým nadpisem nesmí být konec strany
+	\noindent\hbox{%
+		{\color{Automatizace}\rule[-\ctu@dn]{\ctu@title@rulewidth}{\dimexpr\ctu@up+\ctu@dn\relax}}%
+		\hspace*{\ctu@title@rulesep}%
+		\raisebox{0pt}[0pt][0pt]{\box\ctu@title@box}%
+	}\par
+	\ctu@tnow=\pagetotal
+	\ifctu@isadj
+		% doplní linku mezi dvěma nadpisy pod sebou
+		\ctu@gap=\dimexpr\ctu@tnow-\ctu@up-\ctu@tprev-\ctu@dprev\relax
+		\ifdim\ctu@gap>-30pt\ifdim\ctu@gap<60pt
+			\ifdim\ctu@gap<0pt\ctu@gap=0pt\fi
+			\dimen@ii=\prevdepth
+			\nointerlineskip
+			\vbox to 0pt{\vss\hbox to 0pt{\raisebox{\dimexpr\ctu@up+\ctu@dn-\ctu@ovl\relax}[0pt][0pt]{\color{Automatizace}\rule{\ctu@title@rulewidth}{\dimexpr\ctu@gap+\ctu@ovl+\ctu@ovlup\relax}}\hss}}%
+			\prevdepth=\dimen@ii
+		\fi\fi
+	\fi
+	\global\ctu@tprev=\ctu@tnow
+	\global\ctu@dprev=\ctu@dn
+	\global\ctu@after=\@tempskipb
+	\nobreak                                  % nadpis se neoddělí od toho, co následuje
+}
+
+\def\ttlh@ctuch#1#2#3#4#5#6#7#8{%
+	\ctu@pre
+	\ifttl@label\else\chapterstarmark{#8}\fi
+	\ifttl@label\else\addcontentsline{toc}{chapter}{#8}\fi
+	\ctu@hbar{#4}{\ifttl@label\thechapter\quad\fi#8}%
+}
+\def\ttlh@ctus#1#2#3#4#5#6#7#8{%
+	\ctu@pre
+	\ifttl@label\else\sectionstarmark{#8}\fi
+	\ifttl@label\else\addcontentsline{toc}{section}{#8}\fi
+	\ctu@hbar{#1}{\ifttl@label#2\fi\color{ctubluetext}#8}%
+}
+\def\ttlh@ctuss#1#2#3#4#5#6#7#8{%
+	\ctu@pre
+	\ifttl@label\else\addcontentsline{toc}{subsection}{#8}\fi
+	\ctu@hbar{#1}{\ifttl@label#2\fi\color{ctubluetext}#8}%
+}
+\def\ttlh@ctusss#1#2#3#4#5#6#7#8{%
+	\ctu@pre
+	\ifttl@label\else\addcontentsline{toc}{subsubsection}{#8}\fi
+	\ctu@hbar{#1}{\ifttl@label#2\fi\color{ctubluetext}#8}%
+}
+\titlespacing*{\chapter}{0pt}{0pt}{20pt}
+\makeatother
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%  ČÁST 2: ÚVODNÍ STRANY PRÁCE
+%%  Na prázdný řádek před \end{...} piš text.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Sem vlož poděkování
+\begin{thanks}
+	Diky.
+	\end{thanks}
+
+
+% Sem vlož prohlášení
+\begin{declaration}
+prohlasuju ze nebudu podvadet.
+
+\noindent Nemám závažný důvod proti užití tohoto školního díla ve smyslu §\,60 zákona č.~121/2000 Sb., o~právu autorském, o~právech souvisejících s~právem autorským a o~změně některých zákonů (autorský zákon).
+
+\noindent V Praze, říjen 2026
+
+\vskip1cm
+\noindent\dotfill
+\begin{center}Podpis autora práce\end{center}
+
+\end{declaration}
+
+
+% Sem vlož abstrakt v češtině
+\begin{abstract-czech}
+Práce se zabývá návrhem, sestavením a naprogramováním chytré meteostanice s vnitřním a venkovním modulem. Venkovní modul měří teplotu, vlhkost, vítr a srážky, vnitřní modul navíc tlak a zobrazuje všechna data na dotykovém displeji. Moduly komunikují bezdrátově pomocí ESP-NOW a data jsou dostupná i online.
+
+\end{abstract-czech}
+
+
+% Sem vlož abstrakt v angličtině
+\begin{abstract-english}
+This thesis covers the design, construction and programming of a smart weather station with an indoor and an outdoor module. The outdoor module measures temperature, humidity, wind and precipitation, while the indoor module also measures pressure and shows all data on a touchscreen. The modules communicate wirelessly using ESP-NOW and the data is also available online.
+
+\end{abstract-english}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%  ČÁST 3: VLASTNÍ DOKUMENT
+%%  Zadání, kapitoly a zdroje.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+	\maketitle
+
+	% Řádkování 1,5 od úvodu dál (před titulní stranou by zvětšilo logo)
+	\linespread{1.5}\selectfont
+
+	% Sem vlož zadání práce (soubor zadani.pdf nahraj do projektu)
+	% \includepdf[pages=-]{zadani.pdf}
+
+	% Sem vlož jednotlivé kapitoly, každá je v samostatném souboru
+	\input{chapter1(Uvod)}
+	\input{chapter2(reserse)}
+
+	% Sem vlož seznam použitých zdrojů
+\begin{thebibliography}{99}
+
+\bibitem{sparkfun} SPARKFUN ELECTRONICS. \textit{Weather Meter SEN-15901: Datasheet DS-15901} [online]. [cit. 2026-10-23]. Dostupné z: \url{https://cdn.sparkfun.com/assets/d/1/e/0/6/DS-15901-Weather_Meter.pdf}
+
+\bibitem{misol} MISOL. \textit{WH-SP-RG Rain Gauge: Instruction Manual} [online]. [cit. 2026-10-23]. Dostupné z: \url{https://manuals.plus/asin/B00QDMBXUA}
+
+\bibitem{macek} MACEK, Jan. \textit{Domácí meteostanice} [online]. Brno, 2023 [cit. 2026-11-02]. Diplomová práce. Vysoké učení technické v Brně, Fakulta elektrotechniky a komunikačních technologií. Vedoucí práce Soňa Šedivá. Dostupné z: \url{https://theses.cz/id/w5sa8s/Diplomova_prace_-_Jan_Macek.pdf}
+
+\bibitem{ott} OTT HYDROMET. \textit{OTT Pluvio$^2$ S: Data sheet} [online]. [cit. 2026-10-23]. Dostupné z: \url{https://ott.com/download/data-sheet-ott-pluvio-2s-en}
+
+\bibitem{hx711} AVIA SEMICONDUCTOR. \textit{HX711: 24-Bit Analog-to-Digital Converter (ADC) for Weigh Scales} [online]. [cit. 2026-10-23].
+
+\bibitem{cnx} CNX SOFTWARE. \textit{Industrial-grade optical rain gauge beams infrared light to measure rainfall} [online]. 2020 [cit. 2026-10-23]. Dostupné z: \url{https://www.cnx-software.com/2020/07/29/industrial-grade-optical-rain-gauge-beams-infrared-light-to-measure-rainfall/}
+
+\bibitem{rg15} HYDREON. \textit{RG-15 Optical Rain Gauge: Specifications} [online]. [cit. 2026-10-23]. Dostupné z: \url{https://www.mouser.com/datasheet/2/744/RG_15_c2_a0specifications-1890313.pdf}
+
+\bibitem{hestore} HESTORE HUNGARY KFT. \textit{WH-SP-RG: Rain level meter (rain gauge), reed pulse output} [online]. [cit. 2026-10-23]. Dostupné z: \url{https://www.hestore.eu/en/prod_10042313.html}
+
+\bibitem{davis} DAVIS INSTRUMENTS. \textit{Rain Collector 6464/6466: Datasheet} [online]. [cit. 2026-10-23]. Dostupné z: \url{https://www.bmc.de/datenblaetter/DS6464_6466_SS.pdf}
+
+\bibitem{rika} RIKA SENSOR. \textit{RK400-01 Tipping bucket rainfall sensor specification, v5.02} [online]. [cit. 2026-10-23]. Dostupné z: \url{https://img.yfisher.com/m6041/1757578680326-rk400-01-02mmtipping-bucket-rainfall-sensor-specification-v502.pdf}
+
+\bibitem{veinasa} SICHUAN WEINASA TECHNOLOGY. \textit{Veinasa-YL Stainless Metal Digital Tipping Bucket Rain Gauge Sensor} [online]. [cit. 2026-10-23]. Dostupné z: \url{https://e1be750316294ad1.en.made-in-china.com/product/enurLycYYKhA/China-Veinasa-Yl-Stainless-Metal-Digital-Tipping-Bucket-Rain-Gauge-Sensor.html}
+
+\bibitem{bgt} BGT HYDROMET. \textit{High-precision Pulse Siphonic Tipping Bucket Rain Gauge WS-601} [online]. [cit. 2026-10-23]. Dostupné z: \url{https://www.bgt-hydromet.com/high-precision-pulse-siphonic-tipping-bucket-rain-gauge.html}
+
+\bibitem{renkeopt} E-POWER SERVICE. \textit{Renke Optical Rain Gauge} [online]. [cit. 2026-10-23]. Dostupné z: \url{https://www.epower.co.th/product/57820-77952/renke-optical-rain-gauge}
+
+\bibitem{misolwd} MISOL. \textit{WH-SP-WD and WH-SP-RG manual} [online]. [cit. 2026-11-02]. Dostupné z: \url{https://manuals.plus/ae/1005005214339792}
+
+\bibitem{fineoffset} FINE OFFSET ELECTRONICS. \textit{WH3080 Professional Weather Station} [online]. [cit. 2026-11-02]. Dostupné z: \url{https://www.foshk.com/weather_professional/wh3080.html}
+
+\bibitem{rikawind} RIKA SENSOR. \textit{RK100-01 Wind Speed Sensor Specification v3.0} [online]. ESIS Australia [cit. 2026-11-02]. Dostupné z: \url{https://www.esis.com.au/wp/wp-content/uploads/2020/10/RK100-01-wind-speed-specification-v3.0-ESIS-AU.pdf}
+
+\bibitem{rikadir} RIKA SENSOR. \textit{RK110-01 Metallic Wind Direction Sensor (Pulse)} [online]. Instrument Choice [cit. 2026-11-02]. Dostupné z: \url{https://www.instrumentchoice.com.au/products/rk110-01-metallic-wind-direction-sensor-pulse}
+
+\bibitem{calypso} CALYPSO INSTRUMENTS. \textit{Ultra Low Power Ultrasonic Wind Meter} [online]. NauticExpo [cit. 2026-11-02]. Dostupné z: \url{https://pdf.nauticexpo.com/pdf/calypso-marine-instruments/ultra-low-power-ultrasonic-wind-meter/66232-126983.html}
+
+\end{thebibliography}
+\end{document}
