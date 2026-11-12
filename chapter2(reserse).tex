@@ -2,15 +2,13 @@
 
 \section{Požadavky}
 
-Srážkoměr bude součástí venkovního modulu, takže musí fungovat dlouhodobě venku a~jeho signál musí zpracovat mikrokontrolér. Naměřená data se použijí pro 15minutové souhrny, pro denní a~týdenní přehled srážek a~pro jednoduché doporučení zálivky, proto musí být měření stabilní a~opakovatelné. Zařízení se musí dát snadno zapojit a~naprogramovat, mělo by jít objednat z~evropského obchodu a~výhodou je také dostupná dokumentace.
+Srážkoměr bude součástí venkovního modulu, takže musí dlouhodobě fungovat venku a~jeho signál musí zvládnout zpracovat mikrokontrolér. Naměřená data se použijí pro 15minutové souhrny, pro denní a~týdenní přehled srážek a~pro jednoduché doporučení k~zavlažování, proto musí být měření stabilní a~opakovatelné. Srážkoměr se má dát snadno zapojit a~naprogramovat, mělo by být možné ho koupit v~evropském obchodě a~výhodou je dostupná dokumentace.
 
 \section{Principy měření}
 
 \subsection{Kyvný kyblík}
 
-Nejrozšířenějším principem je kyvný kyblík (anglicky \textit{tipping bucket}). Voda ze sběrné nálevky teče do kyvné nádobky se dvěma komorami. Jakmile se jedna komora naplní na určitý objem, nádobka se převrátí, voda vyteče a~plnit se začne druhá komora. Při každém převrácení se pomocí magnetu sepne jazýčkový kontakt, který vytvoří jeden impuls. Jeden impuls tak odpovídá pevně dané výšce srážek. U~srážkoměrů pro malé meteostanice to je například 0,2794~mm na jedno překlopení~\cite{sparkfun}, jiný výrobce ale uvádí 0,3~mm~\cite{misol}.
-
-Princip je znázorněn na obrázku~\ref{fig:kyblik}.
+Nejběžnější je srážkoměr s~kyvným kyblíkem (anglicky \textit{tipping bucket}). Voda ze sběrné nálevky teče do kyvné nádobky se dvěma komorami. Jakmile se jedna komora naplní na určitý objem, nádobka se převrátí, voda vyteče a~začne se plnit druhá komora. Při každém převrácení magnet sepne jazýčkový kontakt, který vytvoří jeden impuls. Jeden impuls tak odpovídá pevně dané výšce srážek (obrázek~\ref{fig:kyblik}). U~srážkoměrů pro malé meteostanice odpovídá jedno překlopení například 0,2794\,mm srážek~\cite{sparkfun}, u~srážkoměru Misol WH-SP-RG je to 0,3\,mm~\cite{macek}.
 
 \begin{figure}[htbp]
 \centering
@@ -19,15 +17,13 @@ Princip je znázorněn na obrázku~\ref{fig:kyblik}.
 \label{fig:kyblik}
 \end{figure}
 
-Výstup je pro mikrokontrolér velmi jednoduchý. Kontakt neobsahuje žádnou aktivní elektroniku a~stačí ho připojit na vstup s~přerušením a~počítat impulsy~\cite{sparkfun}. Tímto způsobem je řešený například srážkoměr v~diplomové práci o~domácí meteostanici, kde mikrokontrolér ESP32 počítá překlopení v~přerušení~\cite{macek}. Základní provedení srážkoměru není vytápěné, takže měří jen kapalné srážky, vytápění umožňuje měřit i sníh~\cite{macek}.
+Výstup je pro mikrokontrolér velmi jednoduchý. Kontakt neobsahuje žádnou aktivní elektroniku, takže stačí počítat jeho sepnutí~\cite{sparkfun}. Srážkoměr bez vytápění, jako je Misol WH-SP-RG, měří pouze dešťové srážky~\cite{macek}. Vytápění bývá k~dispozici jako volitelná výbava~\cite{rika}.
 
 \subsection{Váhový princip}
 
-Při váhovém principu se voda zachycuje do nádoby a~její hmotnost se měří snímačem síly. Výška srážek se dopočítá z~hmotnosti vody a~plochy nálevky, protože 1~mm srážek odpovídá 1~kg vody na metr čtvereční. Při sběrné ploše 200~cm$^2$ tedy 1~mm srážek odpovídá 20~g vody a~0,2~mm odpovídá 4~g. Typickým profesionálním příkladem je OTT Pluvio$^2$ S, který váží uzavřeným snímačem síly, má sběrnou plochu 200~cm$^2$, kapacitu 400~mm a~přesnost $\pm$0,1~mm nebo $\pm$1~\% naměřené hodnoty. Váží kolem 7,8~kg a~je určený pro profesionální použití~\cite{ott}.
+Při váhovém principu se voda zachycuje do nádoby a~její hmotnost se měří snímačem síly. Z~hmotnosti vody a~z~plochy nálevky se pak spočítá, kolik srážek spadlo. Takový srážkoměr nemá žádné překlápěcí části. Příkladem je OTT Pluvio$^2$ S, který vodu váží uzavřeným snímačem síly. Samotný přístroj má hmotnost asi 7,8\,kg (bez vody) a~používá se například v~klimatologii a~při meteorologických pozorováních~\cite{ott}.
 
-Jako možnost vlastní stavby by šlo postavit váhový srážkoměr s~tenzometrickým snímačem. Voda z~nálevky by se zachytávala do nádoby, jejíž hmotnost by se měřila a~digitalizovala 24bitovým převodníkem HX711~\cite{hx711}. Nádoba by se vyprazdňovala posuvným šoupátkem poháněným servem. U~takového konceptu je potřeba řešit vyprazdňování nádoby tak, aby nezkreslovalo vážení, a~počítat také s~pohybem konstrukce při větru.
-
-Koncept je znázorněn na obrázku~\ref{fig:vahovy}.
+Jednou z~možností vlastní stavby je váhový srážkoměr s~tenzometrem (obrázek~\ref{fig:vahovy}). Voda z~nálevky by se zachytávala do nádoby a~její hmotnost by se měřila 24bitovým převodníkem, který je určený pro váhy~\cite{hx711}. Nádoba by se vyprazdňovala posuvným šoupátkem poháněným servem. U~takového konceptu je třeba vyřešit vyprazdňování tak, aby nezkreslovalo vážení, a~také počítat s~tím, že se konstrukce při větru pohybuje.
 
 \begin{figure}[htbp]
 \centering
@@ -38,55 +34,72 @@ Koncept je znázorněn na obrázku~\ref{fig:vahovy}.
 
 \subsection{Optické a~další principy}
 
-Optický srážkoměr nesbírá vodu, ale srážky odhaduje. Infračervené světlo se uvnitř čočky odráží k~detektorům a~kapky dopadající na povrch čočky způsobí, že část světla uniká ven. Z~poklesu intenzity se odhadne velikost kapek a~z~nich množství srážek~\cite{cnx}. Příkladem je Hydreon RG-15, který nemá žádné pohyblivé části. V~klidu spotřebuje asi 110~$\mu$A, za deště 2 až 4~mA. Jeho výstup napodobuje kyblík a~je k~dispozici i~sériové rozhraní. Nominální přesnost je $\pm$10~\%, výrobce uvádí, že se v~terénu může lišit, a~při mrznoucím dešti senzor srážky nezaznamená~\cite{rg15}. Existují i~další principy, například piezoelektrické nebo radarové, ty se ale používají hlavně v~komplexnějších čidlech.
+Optický srážkoměr nesbírá vodu, ale srážky odhaduje. Z~čočky se vysílá infračervené světlo, které se odráží zpět k~detektorům. Když na čočku dopadnou kapky, část světla unikne ven. Senzor změnu intenzity světla vyhodnotí a~určí z~ní velikost kapky~\cite{cnx}. Příkladem je Hydreon RG-15, který nemá žádné pohyblivé části. Jeho výstup napodobuje kyvný kyblík a~k~dispozici je i~sériové rozhraní. Nominální přesnost je $\pm$10\,\%, v~terénu se ale podle výrobce může lišit a~za mrazu senzor srážky nezaznamená~\cite{rg15}. Existují i~další principy, například piezoelektrické nebo radarové, ty se ale používají hlavně v~komplexnějších čidlech, proto se jim dál nevěnuji.
 
 \section{Porovnání principů}
 
-Tabulka~\ref{tab:srazky} shrnuje hlavní vlastnosti popsaných principů a~konkrétních řešení.
+Tabulka~\ref{tab:srazky} shrnuje hlavní vlastnosti popsaných principů a~konkrétních řešení a~obrázek~\ref{fig:srazkomery} ukazuje po jednom zástupci každého principu. Kyvné srážkoměry mají kontaktní výstup, některé i~rozhraní RS485, váhový OTT Pluvio$^2$ S a~optický Hydreon RG-15 mají digitální rozhraní.
 
 \newcolumntype{Y}[1]{>{\hsize=#1\hsize\raggedright\arraybackslash}X}
 
 \begin{center}
 \noindent\begin{minipage}{\textwidth}
-\captionof{table}{Porovnání principů a~konkrétních řešení měření srážek}
+\captionof{table}[Porovnání principů a~řešení měření srážek]{Porovnání principů a~řešení měření srážek~\cite{macek,rika,ott,rg15,davis,bgt}}
 \label{tab:srazky}
 \scriptsize
-\renewcommand{\arraystretch}{1.25}
-\begin{tabularx}{\textwidth}{|Y{1.5}|Y{0.8}|Y{0.8}|Y{0.9}|}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabularx}{\textwidth}{|Y{1.4}|Y{0.85}|Y{0.47}|Y{1.28}|}
 \hline
 \textbf{Řešení} & \textbf{Rozlišení} & \textbf{Přesnost} & \textbf{Výstup} \\
 \hline
 \rowcolor{gray!15}\multicolumn{4}{|l|}{\textbf{Kyvný kyblík}} \\
 \hline
-HESTORE WH-SP-RG (plast) & 0,2794~mm & $\pm$5~\% & kontakt \\
+Misol WH-SP-RG (plast) & 0,3\,mm & 0,3\,mm & kontakt \\
 \hline
-Davis 6466M (UV-ABS) & 0,2~mm & $\pm$3~\% & kontakt \\
+Davis 6466M (UV-ABS) & 0,2\,mm & $\pm$3\,\% & kontakt \\
 \hline
-Rika RK400-01 (nerez, ABS) & 0,2~mm & $\pm$4~\% & kontakt, RS485 \\
+Rika RK400-01 (nerez, ABS) & 0,2\,mm & $\pm$4\,\% & kontakt, RS485 \\
 \hline
-Veinasa XS-RS04 (nerez) & 0,2~mm & $\pm$4~\% & kontakt \\
-\hline
-BGT WS-601 SS (nerez) & 0,2~mm & $\pm$2~\% & kontakt, RS485 \\
+BGT WS-601 SS (nerez) & 0,2\,mm & $\pm$2\,\% & kontakt, RS485 \\
 \hline
 \rowcolor{gray!15}\multicolumn{4}{|l|}{\textbf{Váhový}} \\
 \hline
-OTT Pluvio$^2$ S (7,8~kg) & 0,05 až 0,2~mm & $\pm$1~\% & impulsy, SDI-12, RS-485 \\
+OTT Pluvio$^2$ S (7,8\,kg) & 0,05/0,1/0,2\,mm & $\pm$1\,\% & impulsy, SDI-12, RS-485 \\
 \hline
-Vlastní koncept (tenzometr, HX711) & dáno snímačem & neověřena & HX711 \\
+Vlastní koncept (tenzometr) & dáno snímačem & neověřena & HX711 \\
 \hline
 \rowcolor{gray!15}\multicolumn{4}{|l|}{\textbf{Optický}} \\
 \hline
-Hydreon RG-15 & 0,2~mm & $\pm$10~\% & open-collector, UART \\
-\hline
-Renke Optical Rain Gauge & 0,1~mm & $\pm$5~\% & RS485, impulsy \\
+Hydreon RG-15 & 0,2\,mm & $\pm$10\,\% & open-collector, sériový (RS232) \\
 \hline
 \end{tabularx}
 
 \vspace{0.3em}
 {\scriptsize
-Poznámky: přesnost je podle výrobce. U~Davisu je to $\pm$3~\% nebo jedno překlopení, u~Riky a~Veinasy $\pm$4~\% při testu uvnitř při 2~mm/min, u~BGT $\pm$2~\% do 240~mm/h a~u~OTT $\pm$0,1~mm nebo $\pm$1~\%. Zdroje:~\cite{hestore,sparkfun,misol,davis,rika,veinasa,bgt,ott,rg15,renkeopt}.\par}
+Poznámky: přesnost je podle zdrojů uvedených v~titulku tabulky. U~Misolu je to 0,3\,mm do úhrnu 1\,000\,mm, u~Davisu $\pm$3\,\% nebo jedno překlopení, u~Riky $\pm$4\,\% při srážkách 2\,mm/min, u~BGT $\pm$2\,\% do 240\,mm/h a~u~OTT $\pm$0,1\,mm nebo $\pm$1\,\%.\par}
 \end{minipage}
 \end{center}
+
+\begin{figure}[htbp]
+\centering
+\begin{minipage}[t]{0.28\textwidth}
+\centering
+\includegraphics[width=\linewidth]{srazkomer_misol}\\[0.5em]
+{\linespread{1.15}\footnotesize\textbf{Misol WH-SP-RG}\\kyvný srážkoměr}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.28\textwidth}
+\centering
+\includegraphics[width=\linewidth]{srazkomer_ott}\\[0.5em]
+{\linespread{1.15}\footnotesize\textbf{OTT Pluvio$^2$ S}\\váhový srážkoměr}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.28\textwidth}
+\centering
+\includegraphics[width=\linewidth]{srazkomer_rg15}\\[0.5em]
+{\linespread{1.15}\footnotesize\textbf{Hydreon RG-15}\\optický srážkoměr}
+\end{minipage}
+\caption[Příklady srážkoměrů]{Příklady srážkoměrů. Převzato z~\cite{macek}, \cite{ott} a~\cite{rg15}}
+\label{fig:srazkomery}
+\end{figure}
 
 \chapter{Měření větru}
 
@@ -98,9 +111,7 @@ Venkovní modul má měřit rychlost i~směr větru. Čidlo musí být určené 
 
 \subsection{Miskový anemometr}
 
-Nejběžnější je miskový anemometr. Vítr roztáčí tři nebo čtyři misky na svislé ose a~na ose je magnet. Ten při každé otáčce sepne jazýčkový kontakt (reed) nebo ho zaznamená Hallova sonda. Mikrokontrolér počítá impulsy za určitý čas a~z~jejich frekvence spočítá rychlost. U~čidel typu Fine Offset a~Misol odpovídá jedno sepnutí za sekundu rychlosti 2,4~km/h~\cite{sparkfun}. Výstup je čistě digitální, takže stačí jeden vstup s~počítáním impulsů.
-
-Princip je znázorněn na obrázku~\ref{fig:anemometr}.
+Nejběžnější je miskový anemometr. Vítr roztáčí tři nebo čtyři misky na svislé ose, na které je upevněný magnet. Ten při každé otáčce sepne jazýčkový kontakt (reed), případně ho zaznamená Hallova sonda. Mikrokontrolér počítá impulsy za určitý čas a~z~jejich počtu spočítá rychlost (obrázek~\ref{fig:anemometr}). Například u~anemometru Misol WH-SP-WS01 odpovídá jeden impuls za sekundu rychlosti 2,4\,km/h~\cite{macek}. Výstup je čistě digitální, takže stačí jeden vstup s~počítáním impulsů.
 
 \begin{figure}[htbp]
 \centering
@@ -111,9 +122,7 @@ Princip je znázorněn na obrázku~\ref{fig:anemometr}.
 
 \subsection{Větrná směrovka}
 
-Směrovka se otáčí podle směru větru a~nese magnet. Kolem osy je osm jazýčkových kontaktů, z~nichž každý je zapojený s~jiným odporem. Magnet může sepnout jeden kontakt nebo dva sousední najednou, takže vznikne 16~poloh~\cite{sparkfun}. Každá poloha dá na odporovém děliči jiné napětí. To se přečte analogovým vstupem mikrokontroléru a~podle změřené hodnoty se přiřadí ke směru. Dražší čidla používají jiné způsoby snímání a~směr udávají přímo ve stupních.
-
-Princip je znázorněn na obrázku~\ref{fig:smerovka}.
+Směrovka se otáčí podle směru větru a~nese magnet. Kolem osy je osm jazýčkových kontaktů, z~nichž každý je zapojený s~jiným odporem. Magnet může sepnout jeden kontakt nebo dva sousední najednou, takže vznikne až 16~poloh~\cite{sparkfun,macek}. Každá poloha dá na odporovém děliči jiné napětí. Mikrokontrolér toto napětí změří analogovým vstupem a~podle jeho hodnoty určí směr větru (obrázek~\ref{fig:smerovka}). Dražší čidla používají jiné způsoby snímání a~směr udávají v~rozsahu 0 až 360$^\circ$, například jako napětí, proud nebo digitální hodnotu~\cite{rikadir}.
 
 \begin{figure}[htbp]
 \centering
@@ -124,19 +133,40 @@ Princip je znázorněn na obrázku~\ref{fig:smerovka}.
 
 \subsection{Ultrazvukový anemometr}
 
-Ultrazvukový anemometr nemá žádné pohyblivé části. Mezi několika páry měničů posílá krátké ultrazvukové pulzy a~měří, o~kolik se změní doba letu proti větru a~po větru. Z~rozdílu časů se spočítá rychlost i~směr najednou. Výstup bývá digitální, takže je potřeba řešit i~komunikaci s~čidlem.
+Ultrazvukový anemometr nemá žádné pohyblivé části. Jeho měniče si po dvojicích posílají ultrazvukové pulzy a~měří, o~kolik se doba letu změní při šíření proti větru a~po větru. Z~rozdílu časů se spočítá rychlost i~směr větru najednou~\cite{calypso}. Výstup bývá digitální, takže je třeba řešit i~komunikaci s~čidlem.
 
 \subsection{Vrtulkový anemometr}
 
-Vrtulkový anemometr má vrtuli na vodorovné ose a~otáčí se proti větru, takže měří rychlost i~směr jedním čidlem. Používá se hlavně u~profesionálních stanic a~na letištích, proto se mu dál nevěnuji.
+Vrtulkový anemometr má vrtuli na vodorovné ose, která se natáčí proti větru, takže jedním čidlem měří rychlost i~směr. Používá se hlavně u~profesionálních stanic a~na letištích, proto se mu dál nevěnuji.
 
 \section{Porovnání řešení}
 
-Tabulka~\ref{tab:vitr} shrnuje tři řešení, ke kterým jsem našel dokumentaci. Údaje jsou převzaté z~katalogů a~datasheetů výrobců.
+Tabulka~\ref{tab:vitr} shrnuje tři řešení, ke kterým jsem našel dokumentaci, a~dvě z~nich jsou na obrázku~\ref{fig:vitr}. U~Misolu se pohybují misky a~směrovka, zatímco ultrazvukový Calypso ULP nemá žádné pohyblivé části~\cite{calypso}. Údaje v~tabulce jsou převzaté ze zdrojů uvedených v~jejím titulku.
+
+\begin{figure}[htbp]
+\centering
+\begin{minipage}[t]{0.28\textwidth}
+\centering
+\includegraphics[width=\linewidth]{anemometr_misol}\\[0.5em]
+{\linespread{1.15}\footnotesize\textbf{Misol WH-SP-WS01}\\miskový anemometr}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.28\textwidth}
+\centering
+\includegraphics[width=\linewidth]{smerovka_misol}\\[0.5em]
+{\linespread{1.15}\footnotesize\textbf{Misol WH-SP-WD}\\větrná směrovka}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.28\textwidth}
+\centering
+\includegraphics[width=\linewidth]{anemometr_calypso}\\[0.5em]
+{\linespread{1.15}\footnotesize\textbf{Calypso ULP}\\ultrazvukový anemometr}
+\end{minipage}
+\caption[Příklady čidel větru]{Příklady čidel větru. Převzato z~\cite{macek} a~\cite{calypso}}
+\label{fig:vitr}
+\end{figure}
 
 \begin{center}
 \noindent\begin{minipage}{\textwidth}
-\captionof{table}{Porovnání konkrétních řešení měření větru}
+\captionof{table}[Porovnání konkrétních řešení měření větru]{Porovnání konkrétních řešení měření větru~\cite{macek,rikadir,calypso,fineoffset,rikawind}}
 \label{tab:vitr}
 \scriptsize
 \renewcommand{\arraystretch}{1.25}
@@ -146,18 +176,108 @@ Tabulka~\ref{tab:vitr} shrnuje tři řešení, ke kterým jsem našel dokumentac
 \hline
 \rowcolor{gray!15}\multicolumn{4}{|l|}{\textbf{Miskový anemometr a~směrovka}} \\
 \hline
-Fine Offset / Misol (anemometr + směrovka) & 0 až 50~m/s & $\pm$1~m/s do 10~m/s, nad tím $\pm$10~\% & kontakt, odporový dělič \\
+Fine Offset / Misol (anemometr + směrovka) & 0 až 50\,m/s & $\pm$1\,m/s do 10\,m/s, nad tím $\pm$10\,\% & kontakt, odporový dělič \\
 \hline
-Rika RK100-01 + RK110-01 & 0 až 30~m/s & $\pm(0{,}3+0{,}03\,V)$~m/s, směr $\pm$3$^\circ$ & impulsy, napětí, 4--20~mA, RS485 \\
+Rika RK100-01 + RK110-01 & 0 až 30\,m/s & $\pm(0{,}3+0{,}03\,V)$\,m/s, směr $\pm$3$^\circ$ & impulsy, napětí, 4--20\,mA, RS485 \\
 \hline
 \rowcolor{gray!15}\multicolumn{4}{|l|}{\textbf{Ultrazvukový}} \\
 \hline
-Calypso ULP & 0 až 25 nebo 0 až 45~m/s & 1~\% při 10~m/s, směr $\pm$1$^\circ$ & sériový výstup, Modbus \\
+Calypso ULP & 0 až 45\,m/s & $\pm$0,1\,m/s při 10\,m/s, směr $\pm$1$^\circ$ & RS485 (Modbus), UART \\
 \hline
 \end{tabularx}
 
 \vspace{0.3em}
 {\scriptsize
-Poznámky: rozsah a~přesnost u~Fine Offset jsou údaje výrobce pro jeho stanici WH3080, která používá stejný typ čidel. U~Riky je $V$ naměřená rychlost větru v~m/s. Zdroje:~\cite{fineoffset,misolwd,rikawind,rikadir,calypso}.\par}
+Poznámky: rozsah a~přesnost u~Fine Offset jsou údaje výrobce pro jeho stanici WH3080. U~Riky je $V$ naměřená rychlost větru v~m/s.\par}
 \end{minipage}
 \end{center}
+
+\chapter{Kombinované senzory teploty, vlhkosti a~tlaku}
+
+\section{Požadavky}
+
+Meteostanice má měřit teplotu a~vlhkost vzduchu a~atmosférický tlak. Senzory by měl mikrokontrolér snadno zpracovat, nejlépe po digitální sběrnici. Venkovní čidlo navíc musí být chráněné před přímým sluncem a~deštěm, jinak by neměřilo teplotu vzduchu, ale své vlastní ohřátí.
+
+\section{Jak se měří jednotlivé veličiny}
+
+Dnes se běžně prodávají senzory, které mají v~jednom pouzdře několik měřicích prvků. Každý z~nich pracuje na jiném principu, proto je níže popisuji zvlášť: nejdřív teplotu, potom vlhkost a~nakonec tlak.
+
+\subsection{Teplota}
+
+Teploměry využívají toho, že se s~teplotou mění některá vlastnost materiálu. Samostatné snímače používají například odpor platinového teploměru (RTD), odpor termistoru nebo napětí, které vzniká na spoji dvou různých kovů (termočlánek). V~integrovaných čipech je teploměr přímo v~křemíku a~měří se napětí na polovodičovém přechodu, které závisí na teplotě. Čip výsledek rovnou převede na digitální hodnotu~\cite{ti}.
+
+\subsection{Vlhkost}
+
+Relativní vlhkost říká, kolik vodní páry je ve vzduchu v~poměru k~tomu, kolik by se jí při dané teplotě do vzduchu vešlo. Často se používají kapacitní senzory vlhkosti. Uvnitř je malý kondenzátor, jehož izolační vrstva z~polymeru pohlcuje vodní páru, a~tím se mění jeho kapacita~\cite{rotronic}. Čip kapacitu změří a~přepočítá na procenta vlhkosti. Relativní vlhkost ale závisí také na teplotě, proto senzor vlhkosti měří zároveň i~teplotu.
+
+\subsection{Tlak}
+
+Tlak vzduchu se dnes měří malými křemíkovými senzory. Uvnitř je tenká membrána, která se vlivem tlaku trochu prohne, a~toto prohnutí se převede na elektrický signál. Piezorezistivní senzory mají na membráně tenzometry, jejichž odpor se při prohnutí mění~\cite{bmp280}. Čip signál digitalizuje a~obvykle ho ještě opraví podle teploty. Tlak ale s~nadmořskou výškou klesá, proto se pro porovnání s~předpovědí přepočítává na hladinu moře. Principy všech tří veličin shrnuje tabulka~\ref{tab:principy}.
+
+\begin{center}
+\noindent\begin{minipage}{\textwidth}
+\captionof{table}[Principy měření jednotlivých veličin]{Principy měření jednotlivých veličin~\cite{ti,rotronic,bmp280}}
+\label{tab:principy}
+\small
+\renewcommand{\arraystretch}{1.25}
+\begin{tabularx}{\textwidth}{|Y{0.8}|Y{1.1}|Y{1.1}|}
+\hline
+\textbf{Veličina} & \textbf{Princip} & \textbf{Co se mění} \\
+\hline
+Teplota & polovodičový snímač & napětí na přechodu \\
+\hline
+Vlhkost & kapacitní & kapacita polymerové vrstvy \\
+\hline
+Tlak & piezorezistivní & odpor tenzometrů na membráně \\
+\hline
+\end{tabularx}
+\end{minipage}
+\end{center}
+
+\section{Kombinované senzory}
+
+Kombinovaný senzor má několik měřicích prvků v~jednom pouzdře. Prvky sdílejí napájení i~sběrnici, takže stačí jedna součástka a~jedno propojení s~mikrokontrolérem. Naměřená teplota se navíc používá k~opravě vlhkosti a~tlaku, protože oba tyto údaje na ní závisejí.
+
+Existují tři hlavní varianty. Senzory teploty a~vlhkosti se hodí pro měření stavu vzduchu~\cite{sht4x}. Senzory teploty a~tlaku se používají tam, kde na vlhkosti nezáleží~\cite{bmp280}. Nejkomplexnější jsou senzory, které měří všechny tři veličiny najednou~\cite{bme280}. Příklady jednotlivých variant jsou v~tabulce~\ref{tab:kombinovane}.
+
+\begin{center}
+\noindent\begin{minipage}{\textwidth}
+\captionof{table}[Příklady kombinovaných senzorů]{Příklady kombinovaných senzorů~\cite{bmp280,sht4x,bme280}}
+\label{tab:kombinovane}
+\small
+\renewcommand{\arraystretch}{1.25}
+\begin{tabularx}{\textwidth}{|Y{1.0}|Y{0.8}|Y{0.8}|Y{0.8}|Y{1.6}|}
+\hline
+\textbf{Senzor} & \textbf{Teplota} & \textbf{Vlhkost} & \textbf{Tlak} & \textbf{Rozhraní} \\
+\hline
+SHT45 & ano & ano & ne & I2C \\
+\hline
+BMP280 & ano & ne & ano & I2C, SPI \\
+\hline
+BME280 & ano & ano & ano & I2C, SPI \\
+\hline
+\end{tabularx}
+\end{minipage}
+\end{center}
+
+\section{Radiační štít}
+
+Teploměr na slunci ukazuje víc než skutečná teplota vzduchu, protože ho ohřívá sluneční záření. Proto se čidlo dává do radiačního štítu. Je to kryt z~bílého materiálu, který stíní před sluncem a~deštěm, ale pustí dovnitř vzduch. Podle toho, jak vzduch štítem proudí, se rozlišují dva hlavní typy:
+
+\begin{itemize}
+\item \textit{Pasivní štíty} nemají ventilátor, takže nepotřebují napájení. Příkladem je Davis 7714~\cite{davis7714}.
+\item \textit{Aktivně větrané štíty} mají ventilátor, který vzduch nasává i~za bezvětří, ale potřebují energii.
+\end{itemize}
+
+Davis 7714 je na obrázku~\ref{fig:stit}. Je složený z~několika bílých desek naskládaných nad sebou, takže vzduch může štítem volně proudit a~čidlo je přitom stíněné před přímým sluncem. Nahoře je držák, kterým se štít upevňuje na trubku nebo na dřevěný povrch~\cite{davis7714}. Štít ale nevyřeší všechno: studie ukazuje, že i~se štítem může být měření teploty na slunci zkreslené a~že hodně záleží na proudění vzduchu~\cite{teichmann}.
+
+\begin{figure}[htbp]
+\centering
+\begin{minipage}[t]{0.4\textwidth}
+\centering
+\includegraphics[width=\linewidth]{radiacni_stit}\\[0.5em]
+{\linespread{1.15}\footnotesize\textbf{Davis 7714}\\pasivní radiační štít}
+\end{minipage}
+\caption[Radiační štít Davis 7714]{Příklad radiačního štítu. Převzato z~\cite{davis7714}}
+\label{fig:stit}
+\end{figure}

@@ -19,7 +19,7 @@
 	specialization = S,		% {S, E, IT}
 	%
 	% Sem vlož název práce česky a anglicky
-	title-czech = {Chytrá meteostanice s vnitřním a venkovním modulem},
+	title-czech = {Chytrá meteostanice s~vnitřním a venkovním modulem},
 	title-english = {Smart weather station with indoor and outdoor module},
 	%
 	% Sem vlož své jméno a jméno vedoucího práce
@@ -34,6 +34,10 @@
 	day = 15,
 	month = 10,
 	year = 2026/2027,
+	%
+	% Zadání práce: šablona ho vloží hned za titulní stranu (soubor zadani.pdf je ve složce projektu)
+	front-specification = true,
+	specification-file = {zadani.pdf},
 }
 
 
@@ -50,6 +54,7 @@
 \graphicspath{{obrázky/}{./}}   % obrázky a logo se hledají ve složce obrázky (a v kořeni projektu)
 \usepackage{chngcntr}
 \usepackage{wrapfig}
+% První odstavec za nadpisem je bez odsazení. Kdyby měl být odsazený, stačí přidat \usepackage{indentfirst}.
 
 \usepackage{url}
 \usepackage{csquotes}
@@ -59,10 +64,47 @@
 \usepackage{xurl}
 
 \usepackage{tabularx, array, booktabs}
+\usepackage{xltabular}
+
+% ---------------------------------------------------------------
+% Citace: každý zdroj ve vlastní závorce, např. [2], [10], [11]
+% (stačí psát \cite{a,b,c}). Každé číslo je klikací odkaz
+% na příslušný zdroj v seznamu zdrojů.
+% ---------------------------------------------------------------
+\makeatletter
+\let\ctu@orig@cite\cite
+\newcount\ctu@citetotal
+\newcount\ctu@citeindex
+\newcommand*{\ctu@cite@multi}[2][]{%
+  \begingroup
+    \ctu@citetotal\z@
+    \@for\ctu@citekey:=#2\do{\advance\ctu@citetotal\@ne}%
+    \ctu@citeindex\z@
+    \@for\ctu@citekey:=#2\do{%
+      \advance\ctu@citeindex\@ne
+      \ifnum\ctu@citeindex>\@ne,\space\fi
+      \ifnum\ctu@citeindex=\ctu@citetotal
+        \ifx\relax#1\relax
+          \ctu@orig@cite{\ctu@citekey}%
+        \else
+          \ctu@orig@cite[#1]{\ctu@citekey}%
+        \fi
+      \else
+        \ctu@orig@cite{\ctu@citekey}%
+      \fi}%
+  \endgroup}
+\renewcommand*{\cite}{%
+  \ifx\protect\@typeset@protect
+    \expandafter\ctu@cite@multi
+  \else
+    \expandafter\ctu@orig@cite
+  \fi}
+\makeatother
 
 \addto\ctucaptionsczech{%
 	\def\supervisorname{Vedoucí}%
 	\def\subfieldofstudyname{Studijní program}%
+	\def\bibname{Zdroje}%
 }
 
 \ctutemplateset{maketitle twocolumn default}{
@@ -93,6 +135,8 @@
 
 \setlength{\parskip}{0pt}
 \setlength{\parindent}{1.25cm}
+\clubpenalty=10000    % osamocený první řádek odstavce nezůstane dole na straně
+\widowpenalty=10000   % osamocený poslední řádek odstavce nezůstane nahoře na straně
 
 % ---------------------------------------------------------------
 % Nadpisy: černý text a spojená modrá linka u nadpisů pod sebou
@@ -204,7 +248,7 @@
 
 % Sem vlož prohlášení
 \begin{declaration}
-prohlasuju ze nebudu podvadet.
+Prohlašuji, že jsem svou maturitní práci vypracoval samostatně a že jsem uvedl veškeré použité informační zdroje (literaturu, projekty, SW, atd.), které jsou uvedené v~seznamu literatury.
 
 \noindent Nemám závažný důvod proti užití tohoto školního díla ve smyslu §\,60 zákona č.~121/2000 Sb., o~právu autorském, o~právech souvisejících s~právem autorským a o~změně některých zákonů (autorský zákon).
 
@@ -219,7 +263,7 @@ prohlasuju ze nebudu podvadet.
 
 % Sem vlož abstrakt v češtině
 \begin{abstract-czech}
-Práce se zabývá návrhem, sestavením a naprogramováním chytré meteostanice s vnitřním a venkovním modulem. Venkovní modul měří teplotu, vlhkost, vítr a srážky, vnitřní modul navíc tlak a zobrazuje všechna data na dotykovém displeji. Moduly komunikují bezdrátově pomocí ESP-NOW a data jsou dostupná i online.
+Práce se zabývá návrhem, sestavením a naprogramováním chytré meteostanice s vnitřním a venkovním modulem. Venkovní modul měří teplotu, vlhkost, vítr a srážky, vnitřní modul měří navíc tlak a zobrazuje všechna data na dotykovém displeji. Moduly komunikují bezdrátově pomocí ESP-NOW a data jsou dostupná i online.
 
 \end{abstract-czech}
 
@@ -242,51 +286,76 @@ This thesis covers the design, construction and programming of a smart weather s
 	% Řádkování 1,5 od úvodu dál (před titulní stranou by zvětšilo logo)
 	\linespread{1.5}\selectfont
 
-	% Sem vlož zadání práce (soubor zadani.pdf nahraj do projektu)
-	% \includepdf[pages=-]{zadani.pdf}
-
 	% Sem vlož jednotlivé kapitoly, každá je v samostatném souboru
 	\input{chapter1(Uvod)}
 	\input{chapter2(reserse)}
+	\input{chapter3(navrhove-parametry)}
 
 	% Sem vlož seznam použitých zdrojů
 \begin{thebibliography}{99}
+\bibitem{sparkfun} SPARKFUN ELECTRONICS. \textit{Weather Meter SEN-15901: Datasheet DS-15901} [online]. [cit.~07.~11.~2026]. Dostupný z WWW:~<\url{https://cdn.sparkfun.com/assets/d/1/e/0/6/DS-15901-Weather_Meter.pdf}>.
 
-\bibitem{sparkfun} SPARKFUN ELECTRONICS. \textit{Weather Meter SEN-15901: Datasheet DS-15901} [online]. [cit. 2026-10-23]. Dostupné z: \url{https://cdn.sparkfun.com/assets/d/1/e/0/6/DS-15901-Weather_Meter.pdf}
+\bibitem{macek} MACEK, Jan. \textit{Domácí meteostanice} [online]. Brno, 2023 [cit.~07.~11.~2026]. Diplomová práce. Vysoké učení technické v Brně, Fakulta elektrotechniky a komunikačních technologií. Vedoucí práce Soňa Šedivá. Dostupný z WWW:~<\url{https://theses.cz/id/w5sa8s/Diplomova_prace_-_Jan_Macek.pdf}>.
 
-\bibitem{misol} MISOL. \textit{WH-SP-RG Rain Gauge: Instruction Manual} [online]. [cit. 2026-10-23]. Dostupné z: \url{https://manuals.plus/asin/B00QDMBXUA}
+\bibitem{rika} RIKA SENSOR. \textit{RK400-01 Metal Tipping Bucket Rainfall Sensor Rain Gauge} [online]. [cit.~07.~11.~2026]. Dostupný z WWW:~<\url{https://www.rikasensor.com/rk400-01-tipping-bucket-rainfall-sensor-accurate-rain-gauge.html}>.
 
-\bibitem{macek} MACEK, Jan. \textit{Domácí meteostanice} [online]. Brno, 2023 [cit. 2026-11-02]. Diplomová práce. Vysoké učení technické v Brně, Fakulta elektrotechniky a komunikačních technologií. Vedoucí práce Soňa Šedivá. Dostupné z: \url{https://theses.cz/id/w5sa8s/Diplomova_prace_-_Jan_Macek.pdf}
+\bibitem{ott} OTT HYDROMET. \textit{Pluvio$^2$ S: Precipitation Gauge (data sheet)} [online]. [cit.~07.~11.~2026]. Dostupný z WWW:~<\url{https://cdn.hach.com/1XMCM0ZF/at/x3j3mnb9fprbxcg9gvmnr6v/ME-OT-WT-ds-Pluvio2_S-EN.pdf}>.
 
-\bibitem{ott} OTT HYDROMET. \textit{OTT Pluvio$^2$ S: Data sheet} [online]. [cit. 2026-10-23]. Dostupné z: \url{https://ott.com/download/data-sheet-ott-pluvio-2s-en}
+\bibitem{hx711} AVIA SEMICONDUCTOR. \textit{HX711: 24-Bit Analog-to-Digital Converter (ADC) for Weigh Scales} [online]. [cit.~07.~11.~2026]. Dostupný z WWW:~<\url{https://e2e.ti.com/cfs-file/__key/communityserver-discussions-components-files/73/HX711.pdf}>.
 
-\bibitem{hx711} AVIA SEMICONDUCTOR. \textit{HX711: 24-Bit Analog-to-Digital Converter (ADC) for Weigh Scales} [online]. [cit. 2026-10-23].
+\bibitem{cnx} CNX SOFTWARE. \textit{Industrial-grade optical rain gauge beams infrared light to measure rainfall} [online]. 2020 [cit.~07.~11.~2026]. Dostupný z WWW:~<\url{https://www.cnx-software.com/2020/07/29/industrial-grade-optical-rain-gauge-beams-infrared-light-to-measure-rainfall/}>.
 
-\bibitem{cnx} CNX SOFTWARE. \textit{Industrial-grade optical rain gauge beams infrared light to measure rainfall} [online]. 2020 [cit. 2026-10-23]. Dostupné z: \url{https://www.cnx-software.com/2020/07/29/industrial-grade-optical-rain-gauge-beams-infrared-light-to-measure-rainfall/}
+\bibitem{rg15} HYDREON. \textit{RG-15 Optical Rain Gauge: Specifications} [online]. [cit.~07.~11.~2026]. Dostupný z WWW:~<\url{https://www.mouser.com/datasheet/2/744/RG_15_c2_a0specifications-1890313.pdf}>.
 
-\bibitem{rg15} HYDREON. \textit{RG-15 Optical Rain Gauge: Specifications} [online]. [cit. 2026-10-23]. Dostupné z: \url{https://www.mouser.com/datasheet/2/744/RG_15_c2_a0specifications-1890313.pdf}
+\bibitem{davis} DAVIS INSTRUMENTS. \textit{Rain Collector 6464/6466: Datasheet} [online]. [cit.~07.~11.~2026]. Dostupný z WWW:~<\url{https://www.bmc.de/datenblaetter/DS6464_6466_SS.pdf}>.
 
-\bibitem{hestore} HESTORE HUNGARY KFT. \textit{WH-SP-RG: Rain level meter (rain gauge), reed pulse output} [online]. [cit. 2026-10-23]. Dostupné z: \url{https://www.hestore.eu/en/prod_10042313.html}
+\bibitem{bgt} BGT HYDROMET. \textit{High-precision Pulse Siphonic Tipping Bucket Rain Gauge WS-601} [online]. [cit.~07.~11.~2026]. Dostupný z WWW:~<\url{https://www.bgt-hydromet.com/high-precision-pulse-siphonic-tipping-bucket-rain-gauge.html}>.
 
-\bibitem{davis} DAVIS INSTRUMENTS. \textit{Rain Collector 6464/6466: Datasheet} [online]. [cit. 2026-10-23]. Dostupné z: \url{https://www.bmc.de/datenblaetter/DS6464_6466_SS.pdf}
+\bibitem{rikadir} RIKA SENSOR. \textit{RK110-01 Wind Direction Sensor} [online]. [cit.~07.~11.~2026]. Dostupný z WWW:~<\url{https://www.rikasensor.com/rk110-01-wind-direction-sensor.html}>.
 
-\bibitem{rika} RIKA SENSOR. \textit{RK400-01 Tipping bucket rainfall sensor specification, v5.02} [online]. [cit. 2026-10-23]. Dostupné z: \url{https://img.yfisher.com/m6041/1757578680326-rk400-01-02mmtipping-bucket-rainfall-sensor-specification-v502.pdf}
+\bibitem{calypso} CALYPSO INSTRUMENTS. \textit{ULP: User manual} [online]. [cit.~07.~11.~2026]. Dostupný z WWW:~<\url{https://www.calypsoinstruments.com/web/content/49487}>.
 
-\bibitem{veinasa} SICHUAN WEINASA TECHNOLOGY. \textit{Veinasa-YL Stainless Metal Digital Tipping Bucket Rain Gauge Sensor} [online]. [cit. 2026-10-23]. Dostupné z: \url{https://e1be750316294ad1.en.made-in-china.com/product/enurLycYYKhA/China-Veinasa-Yl-Stainless-Metal-Digital-Tipping-Bucket-Rain-Gauge-Sensor.html}
+\bibitem{fineoffset} FINE OFFSET ELECTRONICS. \textit{WH3080 Professional Weather Station} [online]. [cit.~07.~11.~2026]. Dostupný z WWW:~<\url{https://www.foshk.com/weather_professional/wh3080.html}>.
 
-\bibitem{bgt} BGT HYDROMET. \textit{High-precision Pulse Siphonic Tipping Bucket Rain Gauge WS-601} [online]. [cit. 2026-10-23]. Dostupné z: \url{https://www.bgt-hydromet.com/high-precision-pulse-siphonic-tipping-bucket-rain-gauge.html}
+\bibitem{rikawind} RIKA SENSOR. \textit{RK100-01 Wind Speed Sensor Specification v3.0} [online]. ESIS Australia [cit.~07.~11.~2026]. Dostupný z WWW:~<\url{https://www.esis.com.au/wp/wp-content/uploads/2020/10/RK100-01-wind-speed-specification-v3.0-ESIS-AU.pdf}>.
 
-\bibitem{renkeopt} E-POWER SERVICE. \textit{Renke Optical Rain Gauge} [online]. [cit. 2026-10-23]. Dostupné z: \url{https://www.epower.co.th/product/57820-77952/renke-optical-rain-gauge}
+\bibitem{ti} TEXAS INSTRUMENTS. \textit{Temperature sensing fundamentals} [online]. Application brief SNOAA25. [cit.~07.~11.~2026]. Dostupný z WWW:~<\url{https://www.ti.com/lit/ab/snoaa25/snoaa25.pdf}>.
 
-\bibitem{misolwd} MISOL. \textit{WH-SP-WD and WH-SP-RG manual} [online]. [cit. 2026-11-02]. Dostupné z: \url{https://manuals.plus/ae/1005005214339792}
+\bibitem{rotronic} ROTRONIC. \textit{The Capacitive Humidity Sensor -- How it Works \& Attributes of the Uncertainty Budget} [online]. Technical note. [cit.~07.~11.~2026]. Dostupný z WWW:~<\url{https://www.rotronic.com/media/productattachments/files/c/a/capacitive_humidity_sensor_final.pdf}>.
 
-\bibitem{fineoffset} FINE OFFSET ELECTRONICS. \textit{WH3080 Professional Weather Station} [online]. [cit. 2026-11-02]. Dostupné z: \url{https://www.foshk.com/weather_professional/wh3080.html}
+\bibitem{bmp280} BOSCH SENSORTEC. \textit{BMP280: Digital pressure sensor, Data sheet} [online]. [cit.~07.~11.~2026]. Dostupný z WWW:~<\url{https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bmp280-ds001.pdf}>.
 
-\bibitem{rikawind} RIKA SENSOR. \textit{RK100-01 Wind Speed Sensor Specification v3.0} [online]. ESIS Australia [cit. 2026-11-02]. Dostupné z: \url{https://www.esis.com.au/wp/wp-content/uploads/2020/10/RK100-01-wind-speed-specification-v3.0-ESIS-AU.pdf}
+\bibitem{sht4x} SENSIRION. \textit{Datasheet SHT4x: 4th gen. relative humidity and temperature sensor} [online]. [cit.~07.~11.~2026]. Dostupný z WWW:~<\url{https://sensirion.com/media/documents/33FD6951/6555C40E/Sensirion_Datasheet_SHT4x.pdf}>.
 
-\bibitem{rikadir} RIKA SENSOR. \textit{RK110-01 Metallic Wind Direction Sensor (Pulse)} [online]. Instrument Choice [cit. 2026-11-02]. Dostupné z: \url{https://www.instrumentchoice.com.au/products/rk110-01-metallic-wind-direction-sensor-pulse}
+\bibitem{bme280} BOSCH SENSORTEC. \textit{BME280: Combined humidity and pressure sensor, Data sheet} [online]. [cit.~07.~11.~2026]. Dostupný z WWW:~<\url{https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme280-ds002.pdf}>.
 
-\bibitem{calypso} CALYPSO INSTRUMENTS. \textit{Ultra Low Power Ultrasonic Wind Meter} [online]. NauticExpo [cit. 2026-11-02]. Dostupné z: \url{https://pdf.nauticexpo.com/pdf/calypso-marine-instruments/ultra-low-power-ultrasonic-wind-meter/66232-126983.html}
+\bibitem{davis7714} DAVIS INSTRUMENTS. \textit{Radiation Shield -- SKU 7714} [online]. [cit.~07.~11.~2026]. Dostupný z WWW:~<\url{https://www.davisinstruments.com/products/radiation-shield}>.
+
+\bibitem{teichmann} TEICHMANN, Florian, Alexander PICHLHÖFER, Abdulah SULEJMANOVSKI et al. Measurement Errors When Measuring Temperature in the Sun. \textit{Sensors} [online]. 2024, roč.~24, č.~5, s.~1564 [cit.~07.~11.~2026]. DOI 10.3390/s24051564. Dostupný z WWW:~<\url{https://pmc.ncbi.nlm.nih.gov/articles/PMC10934819}>.
+
+\bibitem{bmesonda} LASKAKIT. \textit{Senzor tlaku, teploty a vlhkosti BME280, 1m} [online]. [cit.~07.~11.~2026]. Dostupný z WWW:~<\url{https://www.laskakit.cz/senzor-tlaku--teploty-a-vlhkosti-bme280--1m/}>.
+
+\bibitem{bmemodul} LASKAKIT. \textit{LaskaKit BME280 Senzor tlaku, teploty a vlhkosti vzduchu} [online]. [cit.~07.~11.~2026]. Dostupný z WWW:~<\url{https://www.laskakit.cz/arduino-senzor-tlaku--teploty-a-vlhkosti-bme280}>.
+
+\bibitem{veml7700} LASKAKIT. \textit{Snímač intenzity osvětlení VEML7700, I2C} [online]. [cit.~07.~11.~2026]. Dostupný z WWW:~<\url{https://www.laskakit.cz/snimac-intenzity-osvetleni-veml7700--i2c/}>.
+
+\bibitem{sadacidel} LASKAKIT. \textit{Sada čidel k meteostanicím WH1080 a WH1090} [online]. [cit.~07.~11.~2026]. Dostupný z WWW:~<\url{https://www.laskakit.cz/sada-cidel-k-meteo-wh1080-a-wh1090/}>.
+
+\bibitem{srazkomerrg} LASKAKIT. \textit{MS-WH-SP-RG srážkoměr} [online]. [cit.~07.~11.~2026]. Dostupný z WWW:~<\url{https://www.laskakit.cz/ms-wh-sp-rg-srazkomer/}>.
+
+\bibitem{krabice} LASKAKIT. \textit{Univerzální instalační krabice ABS IP65 100x100x75mm} [online]. [cit.~07.~11.~2026]. Dostupný z WWW:~<\url{https://www.laskakit.cz/univerzalni-instalacni-krabice-abs-ip65-100x100x75mm/}>.
+
+\bibitem{espnow} ESPRESSIF SYSTEMS. \textit{ESP-NOW} [online]. ESP-IDF Programming Guide, ESP32-C3. [cit.~07.~11.~2026]. Dostupný z WWW:~<\url{https://docs.espressif.com/projects/esp-idf/en/latest/esp32c3/api-reference/network/esp_now.html}>.
+
+\bibitem{esp32c3lpkit} LASKAKIT. \textit{LaskaKit ESP32-C3-LPKit v4.0} [online]. [cit.~07.~11.~2026]. Dostupný z WWW:~<\url{https://www.laskakit.cz/laskkit-esp-12-board/?variantId=10482}>.
+
+\bibitem{espd} LASKAKIT. \textit{LaskaKit ESPD-3.5$''$ ESP32-S3 3.5$''$ TFT ILI9488 CAP Touch Rev.~3.2} [online]. [cit.~07.~11.~2026]. Dostupný z WWW:~<\url{https://www.laskakit.cz/laskakit-espd-35-esp32-3-5-tft-ili9488-touch/?variantId=12158}>.
+
+\bibitem{manclim} ENVIRONMENT AND CLIMATE CHANGE CANADA. \textit{MANCLIM Manual of Climatological Observations: temperature} [online]. 2007, aktualizováno 2013 [cit.~07.~11.~2026]. Dostupný z WWW:~<\url{https://www.canada.ca/en/environment-climate-change/services/weather-manuals-documentation/manclim-climatological-observations/temperature.html}>.
+
+\bibitem{prusapetg} PRUSA RESEARCH. \textit{PETG} [online]. Prusa Knowledge Base. [cit.~07.~11.~2026]. Dostupný z WWW:~<\url{https://help.prusa3d.com/article/petg_2059}>.
+
+\bibitem{fao56} ALLEN, Richard G., Luis S. PEREIRA, Dirk RAES a Martin SMITH. \textit{Crop evapotranspiration: Guidelines for computing crop water requirements} [online]. FAO Irrigation and Drainage Paper 56. Rome: FAO, 1998 [cit.~07.~11.~2026]. ISBN 92-5-104219-5. Dostupný z WWW:~<\url{https://www.fao.org/4/x0490e/x0490e00.htm}>.
 
 \end{thebibliography}
 \end{document}

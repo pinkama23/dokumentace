@@ -1,0 +1,21 @@
+{
+  "files.exclude": {
+    "**/*.aux": true,
+    "**/*.fdb_latexmk": true,
+    "**/*.fls": true,
+    "**/*.idx": true,
+    "**/*.ilg": true,
+    "**/*.ind": true,
+    "**/*.lof": true,
+    "**/*.log": true,
+    "**/*.lot": true,
+    "**/*.out": true,
+    "**/*.synctex.gz": true,
+    "**/*.toc": true
+  },
+  "gitdoc.enabled": true,
+  "gitdoc.autoCommitDelay": 300000,
+  "gitdoc.autoPush": "onCommit",
+  "gitdoc.commitValidationLevel": "none",
+  "git.enableSmartCommit": true
+}

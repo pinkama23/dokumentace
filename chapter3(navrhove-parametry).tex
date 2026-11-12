@@ -1,0 +1,104 @@
+\chapter{Návrhové parametry}
+
+Návrhové parametry určují, co bude meteostanice umět a~jaké požadavky musí splňovat. Vycházejí ze zadání práce a~z~rešerší a~u~každé části zařízení uvádějí zvolené řešení a~důvod, proč jsem ho vybral. Přehled všech parametrů shrnuje tabulka~\ref{tab:parametry}, podrobnosti následují v~dalších podkapitolách.
+
+\section{Základní funkce}
+
+Meteostanice měří počasí přímo v~místě instalace a~přehledně ho zobrazuje. Venkovní modul měří teplotu a~vlhkost vzduchu, rychlost a~směr větru, úhrn srážek a~intenzitu osvětlení a~hodnoty bezdrátově posílá do vnitřního modulu. Ten doplní vlastní měření teploty, vlhkosti a~tlaku a~zobrazí je na dotykovém displeji. Ukládá také patnáctiminutové souhrny, takže je k~dispozici historie nejméně za sedm dní, kterou spolu s~aktuálními hodnotami zobrazuje i~webová stránka. Ze stejných měření zařízení vyhodnotí doporučení k~zavlažování.
+
+\section{Přehled parametrů}
+
+Požadavky ze zadání jsem převedl na konkrétní parametry a~ke každému jsem přiřadil zvolené řešení a~způsob ověření (tabulka~\ref{tab:parametry}). Většinu parametrů ověřím porovnáním s~referenčním přístrojem, úhrn srážek s~odměřeným objemem vody a~ostatní parametry přímou zkouškou.
+
+\newcolumntype{Z}[1]{>{\hsize=#1\hsize\raggedright\arraybackslash}X}
+
+\begin{table}[!t]
+\caption{Přehled návrhových parametrů}
+\label{tab:parametry}
+{\linespread{1.1}\scriptsize\setlength{\tabcolsep}{3.5pt}\renewcommand{\arraystretch}{1.2}
+\begin{tabularx}{\textwidth}{|Z{0.62}|Z{0.78}|Z{1.5}|Z{1.1}|}
+\hline
+\textbf{Veličina / funkce} & \textbf{Požadavek ze zadání} & \textbf{Zvolené řešení} & \textbf{Jak ověřím} \\
+\hline
+Teplota, vlhkost a~tlak & Chyba teploty nejvýše 0,5\,$^\circ$C, vlhkosti 3~procentní body a~tlaku 2\,hPa & Senzor BME280: venku v~sondě~\cite{bmesonda}, uvnitř na modulu~\cite{bmemodul}, tlak měří jen vnitřní modul. Výrobce udává $\pm$0,5\,$^\circ$C (0~až 65\,$^\circ$C), $\pm$3\,\%\,RH (20~až 80\,\%\,RH) a~$\pm$1\,hPa~\cite{bme280}. & Porovnám s~referenčním teploměrem, vlhkoměrem a~barometrem, rozdíl nesmí překročit požadavek. \\
+\hline
+Intenzita osvětlení & Měřit intenzitu osvětlení & Senzor VEML7700 s~rozsahem 0~až 140\,000\,lx~\cite{veml7700}. & Porovnám s~luxmetrem a~určím korekci vlivu krytu. \\
+\hline
+Vítr & Měřit rychlost a~směr větru & Anemometr WH-SP-WS01 a~směrovka WH-SP-WD ze sady~\cite{sadacidel}. Jeden impuls anemometru za sekundu odpovídá 2,4\,km/h~\cite{macek}, směrovka má 16~poloh~\cite{sparkfun,macek}. & Porovnám s~ručním anemometrem a~kompasem. \\
+\hline
+Uchycení čidel & Pevné uchycení snímačů větru, vhodné umístění srážkoměru & Stožár a~držáky ze sady~\cite{sadacidel}. & Zkontroluji, že čidla nemají vůli, a~vodováhou polohu srážkoměru. \\
+\hline
+Úhrn srážek & Rozlišení nejvýše 0,5\,mm, chyba nejvýše větší z~0,5\,mm a~10\,\% referenčního úhrnu, zachytávání a~odvod vody & Kyvný srážkoměr MS-WH-SP-RG ze sady~\cite{sadacidel}, 0,2794\,mm na překlopení~\cite{srazkomerrg}, voda se po něm sama vyprázdní. Nálevka se rozšíří nástavcem (rovnice~\ref{eq:vyska}). & Nalévám známé objemy vody a~porovnávám s~referenčním úhrnem, podle výsledku upravím kalibraci. \\
+\hline
+Radiační štít & Odvětraný radiační štít & Štít ze sady z~bílých desek, 70\,$\times$\,145\,mm~\cite{sadacidel}. & Porovnám teplotu ve štítu s~teploměrem ve stínu. \\
+\hline
+Krytí elektroniky & Venkovní kryt aspoň IP54 & Krabice z~ABS s~krytím IP65, 100\,$\times$\,100\,$\times$\,75\,mm~\cite{krabice}, kabely vedou těsnicími průchodkami. & Postřik vodou ze všech stran, kontrola suchého vnitřku. \\
+\hline
+Komunikace mezi moduly & Dosah aspoň 20\,m & ESP-NOW, bezdrátový protokol firmy Espressif~\cite{espnow}. & Pošlu zprávy na vzdálenost 20\,m a~spočítám ztráty. \\
+\hline
+Displej a~řídicí jednotky & Zobrazení údajů na displeji & Venkovní modul: ESP32-C3-LPKit~\cite{esp32c3lpkit}. Vnitřní modul: ESPD-3.5$''$ s~dotykovým displejem 480\,$\times$\,320~\cite{espd}. & Hodnoty všech čidel se zobrazí na displeji. \\
+\hline
+Napájení & Bezpečné nízké napětí z~adaptéru uvnitř & Venkovní modul: adaptér 12\,V, kabel až 20\,m (aspoň 0,75\,mm$^2$), měnič 12\,$\rightarrow$\,5\,V. Vnitřní modul: USB adaptér 5\,V. & Změřím napětí na konci kabelu a~odběr. Po odpojení napájení se moduly musí samy spustit. \\
+\hline
+Historie a~zavlažování & Patnáctiminutové souhrny, historie nejméně 7~dní na displeji i~na webu, doporučení k~zavlažování & Vnitřní modul ukládá souhrny (za 7~dní jich je 672), zobrazuje je a~odesílá do online služby pro web. Doporučení vychází z~výparu odhadnutého z~teploty a~ze srážek za 7~dní. & Po 7~dnech zkontroluji úplnost dat, doporučení porovnám s~ručním výpočtem. \\
+\hline
+\end{tabularx}}
+\end{table}
+
+\section{Mechanická část}
+
+Venkovní modul tvoří stožár, na jehož vrcholu jsou čidla větru, pod nimi srážkoměr a~níže radiační štít s~čidly teploty, vlhkosti a~osvětlení. Pod štítem je na stožáru krabice s~elektronikou. Většinu mechanických částí tvoří sada čidel LaskaKit pro stanice WH1080 a~WH1090~\cite{sadacidel} s~anemometrem, směrovkou, stožárem, držáky, srážkoměrem a~štítem, takže uchycení čidel nemusím sám navrhovat.
+
+Srážkoměr bude kyvný, typ MS-WH-SP-RG ze sady~\cite{sadacidel}. Jedno překlopení odpovídá 0,2794\,mm srážek~\cite{srazkomerrg}, což splňuje požadavek na rozlišení nejvýše 0,5\,mm, a~voda se po něm sama vyprázdní. Nálevku přesto rozšířím 3D tištěným nástavcem, protože větší záchytná plocha zmenší výšku srážek na jedno překlopení. Objem vody na jedno překlopení zůstává stejný, a~proto novou výšku srážek spočítám podle rovnice~(\ref{eq:vyska})
+
+\begin{equation}
+h_1 = h_0 \cdot \frac{A_0}{A_1} = h_0 \cdot \left(\frac{D_0}{D_1}\right)^2,
+\label{eq:vyska}
+\end{equation}
+
+\noindent kde $h_0 = 0{,}2794$\,mm je výška srážek na jedno překlopení u~původní nálevky~\cite{srazkomerrg}, $A_0$ a~$D_0$ jsou plocha a~průměr původní nálevky a~$A_1$ a~$D_1$ rozšířené nálevky. Výsledek ověřím kalibrací s~odměřeným objemem vody.
+
+Čidla teploty, vlhkosti a~osvětlení budou v~odvětraném radiačním štítu o~rozměrech 70~$\times$ 145\,mm ze sady~\cite{sadacidel}. Podle příručky MANCLIM chrání štít teploměr před přímým sluncem, srážkami a~teplem vyzařovaným zemí a~teploměr se umísťuje 1,25~až 2\,m nad zem~\cite{manclim}, proto štít umístím do výšky asi 2\,m. Uvnitř bude svisle sonda BME280 o~průměru 16\,mm a~délce 121\,mm s~kabelem 1\,m~\cite{bmesonda} a~v~horní části pod otvorem ve střeše čidlo VEML7700~\cite{veml7700}, které před deštěm ochrání průsvitný kryt z~PETG.
+
+Elektroniku ochrání instalační krabice z~ABS o~rozměrech 100~$\times$ 100~$\times$ 75\,mm s~krytím IP65~\cite{krabice}, která s~rezervou splňuje požadavek IP54. Hotovou krabici jsem zvolil proto, že krytí u~ní zaručuje výrobce. Bude na stinné straně stožáru, aby se elektronika nepřehřívala, a~nejvýše 1\,m od štítu, aby kabel sondy dosáhl až do krabice. Díly mimo sadu (nástavec nálevky, kryt čidla osvětlení a~držák krabice) vytisknu z~PETG, který je podle výrobce odolný proti vodě a~vlhkosti~\cite{prusapetg}. Vnitřní modul tvoří displej ESPD-3.5$''$~\cite{espd} v~krytu z~PLA, ve kterém je čidlo BME280~\cite{bmemodul} v~oddělené větrané komůrce, aby ho neohřívala elektronika.
+
+\section{Elektrická část}
+
+Oba moduly budou napájené bezpečným nízkým napětím z~adaptérů uvnitř domu: vnitřní modul USB adaptérem 5\,V, venkovní adaptérem 12\,V, který je spojený s~krabicí dvoužilovým kabelem dlouhým až 20\,m, a~měničem 12\,$\rightarrow$\,5\,V v~krabici. Napětí 12\,V jsem zvolil proto, že při stejném výkonu je proud menší a~na dlouhém kabelu se ztratí méně napětí. Úbytek napětí spočítám podle rovnice~(\ref{eq:ubytek})
+
+\begin{equation}
+\Delta U = I \cdot R = I \cdot \rho \cdot \frac{2l}{S},
+\label{eq:ubytek}
+\end{equation}
+
+\noindent kde $I$ je proud, $\rho$ rezistivita mědi 0,0175\,$\Omega\cdot$mm$^2$/m, $l$ délka a~$S$ průřez kabelu. Délku násobím dvěma, protože proud teče tam i~zpět. Pro $l = 20$\,m, $S = 0{,}75$\,mm$^2$ a~$I = 0{,}2$\,A vychází úbytek asi 0,19\,V, tedy méně než 2\,\% napětí 12\,V.
+
+Venkovní modul řídí deska ESP32-C3-LPKit o~rozměrech 34,2~$\times$ 25,6~$\times$ 7\,mm, kterou lze napájet napětím 3,5~až 5,5\,V~\cite{esp32c3lpkit}. Její devět digitálních a~pět analogových vstupů a~výstupů~\cite{esp32c3lpkit} s~rezervou stačí: anemometr a~srážkoměr zabírají po jednom digitálním vstupu, směrovka jeden analogový a~čidla BME280 a~VEML7700 sdílejí sběrnici I2C, kde se nepletou, protože mají různé adresy~\cite{bme280,veml7700}. Součásti v~krabici propojí deska plošných spojů (DPS), kterou si navrhnu sám.
+
+Vnitřní modul je postavený na desce ESPD-3.5$''$ s~procesorem ESP32-S3, dotykovým displejem 3,5$''$ (480~$\times$ 320), pamětí flash 16\,MB a~konektory \textmu Šup pro I2C, kterou lze napájet napětím 3,7~až 6\,V~\cite{espd}. Čidla se připojí přímo k~desce, takže vnitřní modul vlastní DPS nepotřebuje. Po výpadku napájení se oba moduly musí samy spustit, což ověřím odpojením napájení.
+
+\section{Programová část}
+
+Venkovní modul měří čidla a~odesílá data, vnitřní modul je přijímá, ukládá, zobrazuje a~vyhodnocuje, protože má displej a~připojení k~internetu. Impulsy z~anemometru a~srážkoměru počítá procesor v~přerušení, takže se žádný impuls neztratí a~měření se nepřeruší. Zákmity kontaktů program ignoruje: u~srážkoměru impulsy kratší než 100\,ms, u~anemometru kratší než 5\,ms, protože při rychlosti 50\,m/s~\cite{fineoffset} přicházejí impulsy asi po 13\,ms.
+
+Rychlost větru se počítá z~impulsů anemometru za tři sekundy. Protože jeden impuls za sekundu odpovídá 2,4\,km/h~\cite{macek}, je rozlišení jedné hodnoty 0,8\,km/h. Tři sekundy jsem zvolil jako kompromis mezi rozlišením a~zachycením nárazů. Směr větru se přiřadí jedné ze 16~poloh (krok 22,5$^\circ$)~\cite{sparkfun,macek} a~průměruje se z~vektorů pomocí sinu a~kosinu, protože obyčejný průměr 350$^\circ$ a~10$^\circ$ by vyšel 180$^\circ$.
+
+Čidlo BME280 pracuje v~režimu vynuceného měření (anglicky \textit{forced mode}) jednou za minutu s~nadvzorkováním $\times$1~a~vypnutým filtrem IIR, což výrobce doporučuje pro sledování počasí~\cite{bme280}. Čip tak většinu času spí a~neohřívá se. Stejně často venkovní modul pošle vnitřnímu zprávu pomocí ESP-NOW~\cite{espnow} s~naměřenými hodnotami a~celkovým počtem překlopení srážkoměru, aby se při ztrátě zprávy nezapomněla žádná srážka. ESP-NOW využívá rádio přímo v~procesorech a~vyžaduje stejný kanál~\cite{espnow}, proto venkovní modul vysílá na kanálu routeru.
+
+Z~minutových hodnot vnitřní modul po patnácti minutách vytvoří souhrn a~uloží ho do paměti flash, čas získá z~internetu protokolem NTP. Za sedm dní vznikne $7 \cdot 24 \cdot 4 = 672$ souhrnů, které zabírají zlomek paměti flash 16\,MB~\cite{espd}, proto nepotřebuji kartu microSD. Displej zobrazuje aktuální hodnoty a~grafy historie a~jas se mění podle čidla VEML7700. Hodnoty vnitřní modul odesílá do online služby, ze které je zobrazí webová stránka, službu zvolím v~praktické části. Úhrn srážek se počítá jako počet překlopení krát $h_1$ z~rovnice~(\ref{eq:vyska}).
+
+Doporučení k~zavlažování vychází z~toho, že rostliny potřebují tolik vody, kolik se jí odpaří. Výpar odhadnu z~referenční evapotranspirace $\mathrm{ET}_0$, což je množství vody, které se za den odpaří z~referenčního trávníku~\cite{fao56}. Protože meteostanice sluneční záření neměří (VEML7700 měří osvětlení v~luxech), použiji Hargreavesovu rovnici~(\ref{eq:hargreaves}), která potřebuje jen teplotu~\cite{fao56}
+
+\begin{equation}
+\mathrm{ET}_0 = 0{,}0023 \cdot (T_{\text{prům}} + 17{,}8) \cdot \sqrt{T_{\max} - T_{\min}} \cdot R_{\mathrm{a}},
+\label{eq:hargreaves}
+\end{equation}
+
+\noindent kde $\mathrm{ET}_0$ je výpar v~mm za den, $T_{\text{prům}}$, $T_{\max}$ a~$T_{\min}$ průměrná, nejvyšší a~nejnižší denní teplota ve~$^\circ$C ze souhrnů a~$R_{\mathrm{a}}$ záření na horní hranici atmosféry v~mm za den, které závisí jen na zeměpisné šířce a~dni v~roce a~spočítá se podle~\cite{fao56}. Výpar za posledních sedm dní porovnám se srážkami podle rovnice~(\ref{eq:deficit})
+
+\begin{equation}
+D = \sum \mathrm{ET}_0 - \sum R,
+\label{eq:deficit}
+\end{equation}
+
+\noindent kde $D$ je vodní deficit v~mm, $\sum \mathrm{ET}_0$ součet výparu a~$\sum R$ součet srážek za sedm dní. Protože 1\,mm odpovídá 1~litru na metr čtvereční, lze hodnoty přímo porovnat. Pokud je $D$ větší než nula, zařízení doporučí zálivku s~dávkou $D$, jinak ji nedoporučí. Žádný ventil neovládá, doporučení jen zobrazí.
