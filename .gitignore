@@ -11,3 +11,6 @@
 *.synctex.gz
 *.synctex(busy)
 *.toc
+
+# vygenerovane PDF (jde kdykoliv znovu prelozit z .tex)
+dmp.pdf
